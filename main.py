@@ -14,11 +14,14 @@ app.add_middleware(
 )
 
 @app.get('/historical-data')
-def get_historical_data(symbol: str, from_date: str, to_date: str):
+def get_historical_data(symbol: str = None, from_date: str = None, to_date: str = None):
     data = []
     with sqlite3.connect('./historicData.db') as conn:
         c = conn.cursor()
-        c.execute("SELECT date, price FROM historical_data WHERE instrument_name=? AND date BETWEEN ? AND ?", (symbol, from_date, to_date))
+        if symbol and from_date and to_date:
+            c.execute("SELECT date, price FROM historical_data WHERE instrument_name=? AND date BETWEEN ? AND ?", (symbol, from_date, to_date))
+        else:
+            c.execute("SELECT date, price FROM historical_data")
         rows = c.fetchall()
         for row in rows:
             data.append({'date': row[0], 'price': row[1]})
